@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
@@ -7,11 +8,15 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/lay1"
-    android:orientation="horizontal">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/lay1"
+        android:orientation="horizontal">
 
     <EditText
         android:id="@+id/text_type"
@@ -32,5 +37,19 @@
         android:id="@+id/send_to_db"
         android:text="Send to DB"
         android:layout_below="@+id/text_after_type"/>
+
+</RelativeLayout>
+
+    <ListView
+    android:id="@+id/list"
+    android:layout_width="fill_parent"
+    android:layout_height="100dp"
+    android:dividerHeight="2sp"
+    android:cacheColorHint="@android:color/transparent"
+    android:transcriptMode="alwaysScroll"
+    android:stackFromBottom="true"
+    android:layout_below="@+id/relativeLayout"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"/>
 
 </RelativeLayout>
