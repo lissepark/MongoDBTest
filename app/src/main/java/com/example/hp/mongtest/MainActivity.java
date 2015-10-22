@@ -96,12 +96,6 @@ public class MainActivity extends Activity {
             }
         };
         mListOfTests.setAdapter(mAdapter);
-
-
-
-
-        //https://api.mongolab.com/api/1/databases?apiKey=2E81PUmPFI84t7UIc_5YdldAp1ruUPKye
-        //https://api.mongolab.com/api/1
     }
 
 
@@ -117,7 +111,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
             try {
-                result = new MyHttpClient().executeHttpPost("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                result = new MyHttpClient().executeHttpDelete("https://api.mongolab.com/api/1/databases/test1/collections/users" +
                         "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_",jsonObject);
 
                 msg = new Message();
@@ -131,35 +125,6 @@ public class MainActivity extends Activity {
             for(Message lp : docsList) {
                 imagesNamesList.add(lp.getMessage());
             }
-            //MongoCredential mCredent = MongoCredential.createCredential("sergii", "test1", "2".toCharArray());
-            //MongoClient mongoClient = new MongoClient(new ServerAddress("ds033734.mongolab.com",33734), Arrays.asList(mCredent));
-
-            //MongoClientURI uri = new MongoClientURI("mongodb://sergii:2@ds033734.mongolab.com:33734/test1");
-            //MongoClient mongoClient = new MongoClient(uri);
-            //DB db = mongoClient.getDB(uri.getDatabase());
-            //MongoDatabase db = mongoClient.getDatabase("test1");
-            //db.getCollection("users");
-
-            //Log.d("DBName: ",""+db.getCollection("users").count());
-
-            //mDB = mongoClient.getDB("test1");
-            //long myDoc = mDB.getCollection("users").count();
-/*
-                List<String> databases = mongoClient.getDatabaseNames();
-
-                for (String dbName : databases) {
-                    System.out.println("- Database: " + dbName);
-
-                    DB db = mongoClient.getDB(dbName);
-
-                    Set<String> collections = db.getCollectionNames();
-                    for (String colName : collections) {
-                        mCollectionsNames.add(colName);
-                        System.out.println("\t + Collection: " + colName);
-                    }
-                }
-                */
-            //Log.d("DBName: ",""+myDoc);
             return imagesNamesList;
         }
 

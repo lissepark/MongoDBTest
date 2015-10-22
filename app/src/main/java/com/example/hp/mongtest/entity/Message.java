@@ -44,9 +44,6 @@ public class Message {
                     msg = new Message();
                     msg.setMessage(dataObj.getString("message"));
                 }
-                //if (dataObj.has("date")) {
-                //    msg.setDate(dataObj.getString("date"));
-               // }
             }
         } catch (JSONException e) {
             Log.i("Parse error %s", e.getLocalizedMessage());
@@ -64,15 +61,6 @@ public class Message {
             e.printStackTrace();
         }
         JSONObject jsonObject = null;
-/*
-        try {
-            jsonObject = new JSONObject((String) obj);
-            Log.i("JSONObj",""+jsonObject.toString());
-            ja = (JSONArray) jsonObject.get("message");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-*/
         try {
             if (ja instanceof JSONArray) {
                 int size = ja.length();

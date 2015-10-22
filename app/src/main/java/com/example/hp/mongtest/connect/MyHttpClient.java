@@ -20,11 +20,6 @@ import java.net.URL;
  * Created by Sergii Varenyk on 20.10.15.
  */
 public class MyHttpClient {
-//we can use HttpURLConnection instead HttpClient from Android Api version 6.0
-
-    /** The time it takes for our client to timeout */
-    //public static final int HTTP_TIMEOUT = 30 * 1000; // milliseconds
-
 
     /**
      * Performs an HTTP Post request to the specified url with the specified parameters.
@@ -32,9 +27,9 @@ public class MyHttpClient {
     public static String executeHttpPost(String httpUrl, JSONObject json) throws Exception {
         HttpURLConnection c = null;
         URL url = new URL(httpUrl);
-        OutputStreamWriter osw=null;
+        OutputStreamWriter osw = null;
         try {
-            c=(HttpURLConnection)url.openConnection();
+            c = (HttpURLConnection) url.openConnection();
 
             c.setRequestMethod("POST");
             c.setReadTimeout(10000);
@@ -44,17 +39,17 @@ public class MyHttpClient {
 
             c.connect();
             OutputStream out = new BufferedOutputStream(c.getOutputStream());
-            osw= new OutputStreamWriter(out);
+            osw = new OutputStreamWriter(out);
             osw.write(json.toString());
             osw.flush();
             osw.close();
             c.disconnect();
             return executeHttpGet(httpUrl);
         } finally {
-            if (osw!=null) {
+            if (osw != null) {
                 osw.close();
             }
-            if (c!=null) {
+            if (c != null) {
                 c.disconnect();
             }
         }
@@ -63,82 +58,67 @@ public class MyHttpClient {
 
     /**
      * Performs an HTTP GET request to the specified url.
-     *
-     * @param url The web address to post the request to
-     * @return The result of the request
-     * @throws Exception
      */
     public static String executeHttpGet(String httpUrl) throws Exception {
         HttpURLConnection c = null;
         URL url = new URL(httpUrl);
-        BufferedReader reader=null;
+        BufferedReader reader = null;
         try {
-            c=(HttpURLConnection)url.openConnection();
+            c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("GET");
             c.setReadTimeout(10000);
             c.connect();
-            reader= new BufferedReader(new InputStreamReader(c.getInputStream()));
-            StringBuilder buf=new StringBuilder();
-            String line="";
-            while ((line=reader.readLine()) != null) {
+            reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
+            StringBuilder buf = new StringBuilder();
+            String line = "";
+            while ((line = reader.readLine()) != null) {
                 buf.append(line + "\n");
             }
-            return(buf.toString());
+            return (buf.toString());
 
-        }
-        finally {
+        } finally {
             if (reader != null) {
                 reader.close();
             }
             c.disconnect();
         }
-
     }
-}
 
-
-/*
 
     /**
      * Performs an HTTP DELETE request to the specified url.
-     *
-     * @param url The web address to post the request to
-     * @return The result of the request
-     * @throws Exception
      */
- /*   public static String executeHttpDelete(String url) throws Exception {
-        BufferedReader in = null;
-        String data = null;
-
+    public static String executeHttpDelete(String httpUrl, JSONObject jsonObject) throws Exception {
+        HttpURLConnection c = null;
+        URL url = new URL(httpUrl);
+        OutputStreamWriter osw = null;
         try {
-            HttpClient client = getHttpClient();
-            HttpDelete request = new HttpDelete();
-            request.setURI(new URI(url));
-            HttpResponse response = client.execute(request);
-            response.getStatusLine().getStatusCode();
+            c = (HttpURLConnection) url.openConnection();
 
-            in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            StringBuffer sb = new StringBuffer("");
-            String l = "";
-            String nl = System.getProperty("line.separator");
-            while ((l = in.readLine()) !=null){
-                sb.append(l + nl);
+            c.setRequestMethod("DELETE");
+            c.setReadTimeout(10000);
+            c.setRequestProperty("Content-Type", "application/json");
+            //c.setDoOutput(true);
+            //c.setChunkedStreamingMode(0);
+
+            c.connect();
+            OutputStream out = new BufferedOutputStream(c.getOutputStream());
+            osw = new OutputStreamWriter(out);
+            osw.write(jsonObject.toString());
+            osw.flush();
+            osw.close();
+            c.disconnect();
+            return executeHttpGet(httpUrl);
+        } finally {
+            if (osw != null) {
+                osw.close();
             }
-            in.close();
-            data = sb.toString();
-            return data;
-        } finally{
-            if (in != null){
-                try{
-                    in.close();
-                    return data;
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+            if (c != null) {
+                c.disconnect();
             }
         }
     }
-
+}
     /**
      * Performs an HTTP Put request to the specified url with the
      * specified parameters.
