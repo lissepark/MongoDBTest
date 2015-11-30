@@ -20,8 +20,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.hp.mongtest.connect.MyHttpClient;
+import com.example.hp.mongtest.dao.daoImpl.DaoMessageImpl;
 import com.example.hp.mongtest.entity.Message;
 
 import org.json.JSONException;
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mListOfTests.setAdapter(mAdapter);
+
     }
 
 

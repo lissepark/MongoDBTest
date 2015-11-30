@@ -82,7 +82,8 @@ public class MyHttpClient {
     /**
      * Performs an HTTP DELETE request to the specified url.
      */
-    public static void executeHttpDelete(String httpUrl) throws Exception {
+    public static boolean executeHttpDelete(String httpUrl) throws Exception {
+        Boolean bool = false;
         HttpURLConnection c = null;
         URL url = new URL(httpUrl);
         OutputStreamWriter osw = null;
@@ -92,6 +93,9 @@ public class MyHttpClient {
             c.setReadTimeout(10000);
             c.setRequestProperty("Content-Type", "application/json");
             c.connect();
+            if (c.getResponseCode() == 200){
+                bool = true;
+            }
             c.disconnect();
         } finally {
             if (osw != null) {
@@ -101,5 +105,6 @@ public class MyHttpClient {
                 c.disconnect();
             }
         }
+        return bool;
     }
 }
