@@ -1,12 +1,18 @@
 package com.example.hp.mongtest;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,27 +23,17 @@ import android.widget.TextView;
 
 import com.example.hp.mongtest.connect.MyHttpClient;
 import com.example.hp.mongtest.entity.Message;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private EditText mTitleField;
     private TextView mTextAfterType;
     private Button mSendToDB;
@@ -85,14 +81,25 @@ public class MainActivity extends Activity {
         });
 
         mListOfTests = (ListView)findViewById(R.id.list);
-        mAdapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,mArrayList){
+        mAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.list_item,mArrayList){
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
-                View view = super.getView(position,convertView,parent);
-                TextView text = (TextView)view.findViewById(android.R.id.text1);
+                View v = convertView;
 
+                if (v == null) {
+                    LayoutInflater vi;
+                    vi = LayoutInflater.from(getContext());
+                    v = vi.inflate(R.layout.list_item, null);
+                }
+                String message = getItem(position);
+                TextView text = (TextView)v.findViewById(R.id.text_item);
+                TextView textDate = (TextView)v.findViewById(R.id.text_date);
+                text.setText(message);
+                String dateFormat = "EEEE, MMM dd, yyyy";
+                String dateString = DateFormat.format(dateFormat, new Date()).toString();
+                textDate.setText(dateString);
                 text.setTextColor(Color.GREEN);
-                return view;
+                return v;
             }
         };
         mListOfTests.setAdapter(mAdapter);
@@ -111,8 +118,10 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
             try {
-                result = new MyHttpClient().executeHttpDelete("https://api.mongolab.com/api/1/databases/test1/collections/users" +
-                        "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_",jsonObject);
+                result = new MyHttpClient().executeHttpGet("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                        "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
+                //result = new MyHttpClient().executeHttpDelete("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                //        "/5627d36ae4b0bf8fc402fc51?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
 
                 msg = new Message();
                 docsList = msg.makeMsgList(result);
@@ -135,5 +144,29 @@ public class MainActivity extends Activity {
             }
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent intentSettings = new Intent(this, SettingsActivity.class);
+            startActivity(intentSettings);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
