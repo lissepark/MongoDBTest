@@ -4,10 +4,13 @@ package com.example.hp.mongtest.dao.daoImpl;
 import com.example.hp.mongtest.CallbackMongo;
 import com.example.hp.mongtest.EventAsync;
 import com.example.hp.mongtest.MessageAddAsync;
+import com.example.hp.mongtest.MessageGetAsync;
 import com.example.hp.mongtest.dao.DaoMessage;
+import com.example.hp.mongtest.entity.Message;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 /**
@@ -53,5 +56,10 @@ public class DaoMessageImpl implements DaoMessage {
                     }
                 });
      */
+
+    @Override
+    public void getMessages(String url,CallbackMongo callbackMongo) {
+        new MessageGetAsync(callbackMongo).execute(url);
+    }
 
 }

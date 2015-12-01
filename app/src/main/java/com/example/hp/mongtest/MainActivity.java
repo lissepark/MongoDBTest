@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hp.mongtest.dao.daoImpl.DaoMessageImpl;
+import com.example.hp.mongtest.entity.Message;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,7 +116,55 @@ public class MainActivity extends AppCompatActivity {
         };
         mListOfTests.setAdapter(mAdapter);
 
+
+        new DaoMessageImpl().getMessages("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_",new CallbackMongo(){
+            @Override
+            public void onTaskComplited(Object result) {
+                for (Message message : (ArrayList<Message>)result){
+                    mArrayList.add(message.getMessage());
+                }
+            mAdapter.notifyDataSetChanged();
+            }
+        });
+
+
+        mListOfTests.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick (AdapterView parent, View view, int position, long id) {
+                System.out.println("Long click");
+                view.startActionMode((android.view.ActionMode.Callback) modeCallBack);
+                view.setSelected(true);
+                return true; } });
+
     }
+
+    private ActionMode.Callback modeCallBack = new ActionMode.Callback() {
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.setTitle("Options");
+            mode.getMenuInflater().inflate(R.menu.message_list_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return false;
+        }
+    };
+
+
+
 
     @Override
     protected void onResume() {
