@@ -2,7 +2,6 @@ package com.example.hp.mongtest;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +21,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hp.mongtest.connect.MyHttpClient;
 import com.example.hp.mongtest.dao.daoImpl.DaoMessageImpl;
-import com.example.hp.mongtest.entity.Message;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText mTitleField;
     private TextView mTextAfterType;
     private Button mSendToDB;
-    String result = null;
     String mn;
     JSONObject jsonObject = new JSONObject();
     private ArrayAdapter<String> mAdapter;
@@ -74,11 +68,24 @@ public class MainActivity extends AppCompatActivity {
         mSendToDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mn = mTitleField.getText().toString();
-                new LoadEvent().execute();
-                Log.d("array size", "" + mArrayList.size());
-
-
+                try {
+                    jsonObject.put("message", mTitleField.getText().toString());
+                    jsonObject.put("url","https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                            "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
+                    jsonObject.put("createdDate",new Date());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new DaoMessageImpl().insertMessage(jsonObject,new CallbackMongo(){
+                    @Override
+                    public void onTaskComplited(Object result) {
+                        if ((Boolean)result){
+                            Toast.makeText(getApplicationContext(),"Message was added successfuly",Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Message adding Error",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
 
@@ -106,47 +113,6 @@ public class MainActivity extends AppCompatActivity {
         };
         mListOfTests.setAdapter(mAdapter);
 
-    }
-
-
-    private class LoadEvent extends AsyncTask<Void, Void, ArrayList<String>> {
-        ArrayList<Message> docsList = new ArrayList<>();
-        Message msg;
-
-        @Override
-        protected ArrayList<String> doInBackground(Void... voids) {
-            try {
-                jsonObject.put("message",mn);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                result = new MyHttpClient().executeHttpGet("https://api.mongolab.com/api/1/databases/test1/collections/users" +
-                        "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
-                //result = new MyHttpClient().executeHttpDelete("https://api.mongolab.com/api/1/databases/test1/collections/users" +
-                //        "/5627d36ae4b0bf8fc402fc51?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
-
-                msg = new Message();
-                docsList = msg.makeMsgList(result);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            ArrayList<String> imagesNamesList = new ArrayList<String>();
-            for(Message lp : docsList) {
-                imagesNamesList.add(lp.getMessage());
-            }
-            return imagesNamesList;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> namesList){
-            for (String st:namesList){
-                mArrayList.add(st);
-            }
-            mAdapter.notifyDataSetChanged();
-        }
     }
 
     @Override

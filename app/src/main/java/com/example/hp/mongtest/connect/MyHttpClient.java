@@ -20,7 +20,8 @@ public class MyHttpClient {
     /**
      * Performs an HTTP Post request to the specified url with the specified parameters.
      */
-    public static String executeHttpPost(String httpUrl, JSONObject json) throws Exception {
+    public static boolean executeHttpPost(String httpUrl, JSONObject json) throws Exception {
+        Boolean bool = false;
         HttpURLConnection c = null;
         URL url = new URL(httpUrl);
         OutputStreamWriter osw = null;
@@ -37,8 +38,10 @@ public class MyHttpClient {
             osw.write(json.toString());
             osw.flush();
             osw.close();
+            if (c.getResponseCode() == 200){
+                bool = true;
+            }
             c.disconnect();
-            return executeHttpGet(httpUrl);
         } finally {
             if (osw != null) {
                 osw.close();
@@ -47,7 +50,7 @@ public class MyHttpClient {
                 c.disconnect();
             }
         }
-
+        return bool;
     }
 
     /**

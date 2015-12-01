@@ -17,6 +17,7 @@ import java.util.Date;
 public class Message {
     private String mMessage;
     private Date mDate;
+    private String url;
 
     public String getMessage() {
         return mMessage;
@@ -34,6 +35,13 @@ public class Message {
         mDate = date;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public static Message makeMessage(Object obj) {
         Message msg = null;
