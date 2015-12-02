@@ -15,8 +15,18 @@ import java.util.Date;
  * Created by Sergii Varenyk on 21.10.15.
  */
 public class Message {
+    private String idMessage;
     private String mMessage;
-    private Date mDate;
+
+    public String getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(String idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    private String mDate;
     private String url;
 
     public String getMessage() {
@@ -27,11 +37,11 @@ public class Message {
         mMessage = message;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return mDate;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         mDate = date;
     }
 
@@ -48,9 +58,16 @@ public class Message {
         try {
             if (obj instanceof JSONObject) {
                 JSONObject dataObj = (JSONObject)obj;
+                msg = new Message();
                 if (dataObj.has("message")) {
-                    msg = new Message();
                     msg.setMessage(dataObj.getString("message"));
+                }
+                if (dataObj.has("_id")) {
+                    JSONObject jsobj = dataObj.getJSONObject("_id");
+                    msg.setIdMessage(jsobj.getString("$oid"));
+                }
+                if (dataObj.has("createdDate")) {
+                    msg.setDate(dataObj.getString("createdDate"));
                 }
             }
         } catch (JSONException e) {

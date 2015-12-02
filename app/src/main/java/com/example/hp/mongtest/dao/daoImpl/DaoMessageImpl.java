@@ -19,14 +19,13 @@ import java.util.ArrayList;
 public class DaoMessageImpl implements DaoMessage {
 
     @Override
-    public void deleteMessage(String idMessage,CallbackMongo callbackMongo) {
-        new EventAsync(callbackMongo).execute("https://api.mongolab.com/api/1/databases/test1/collections/users" +
-                "/"+idMessage+"?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
+    public void deleteMessage(String url,CallbackMongo callbackMongo) {
+        new EventAsync(callbackMongo).execute(url);
     }
 
     //example for using
     /*
-    new DaoMessageImpl().deleteMessage("56275d7ee4b078c7b50519dd",new CallbackMongo(){
+    new DaoMessageImpl().deleteMessage(String url,new CallbackMongo(){
             @Override
             public void onTaskComplited(Object result) {
                 if ((Boolean)result){

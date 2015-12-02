@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
+import android.view.ActionMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -29,6 +29,7 @@ import com.example.hp.mongtest.entity.Message;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -39,9 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mSendToDB;
     String mn;
     JSONObject jsonObject = new JSONObject();
-    private ArrayAdapter<String> mAdapter;
+    private ArrayList<Message> messagesList = new ArrayList<Message>();
+    private ArrayAdapter<Message> mAdapter;
     private ArrayList<String> mArrayList = new ArrayList<>();
     private ListView mListOfTests;
+    Message messg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     jsonObject.put("message", mTitleField.getText().toString());
                     jsonObject.put("url","https://api.mongolab.com/api/1/databases/test1/collections/users" +
                             "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_");
-                    jsonObject.put("createdDate",new Date());
+                    jsonObject.put("createdDate",new Date().getTime());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -89,11 +92,23 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+                new DaoMessageImpl().getMessages("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                        "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_", new CallbackMongo() {
+                    @Override
+                    public void onTaskComplited(Object result) {
+                        messagesList.clear();
+                        for (Message message : (ArrayList<Message>) result) {
+                            messagesList.add(message);
+                            mArrayList.add(message.getMessage());
+                        }
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
             }
         });
 
         mListOfTests = (ListView)findViewById(R.id.list);
-        mAdapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.list_item,mArrayList){
+        mAdapter = new ArrayAdapter<Message>(getApplicationContext(),R.layout.list_item,messagesList){
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
                 View v = convertView;
@@ -103,13 +118,15 @@ public class MainActivity extends AppCompatActivity {
                     vi = LayoutInflater.from(getContext());
                     v = vi.inflate(R.layout.list_item, null);
                 }
-                String message = getItem(position);
+                String message = getItem(position).getMessage();
                 TextView text = (TextView)v.findViewById(R.id.text_item);
                 TextView textDate = (TextView)v.findViewById(R.id.text_date);
                 text.setText(message);
+                String dateString = getItem(position).getDate();
+                long dateLong = Long.parseLong(dateString);
                 String dateFormat = "EEEE, MMM dd, yyyy";
-                String dateString = DateFormat.format(dateFormat, new Date()).toString();
-                textDate.setText(dateString);
+                String dateForView = DateFormat.format(dateFormat,dateLong).toString();
+                textDate.setText(dateForView);
                 text.setTextColor(Color.GREEN);
                 return v;
             }
@@ -118,24 +135,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         new DaoMessageImpl().getMessages("https://api.mongolab.com/api/1/databases/test1/collections/users" +
-                "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_",new CallbackMongo(){
+                "?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_", new CallbackMongo() {
             @Override
             public void onTaskComplited(Object result) {
-                for (Message message : (ArrayList<Message>)result){
+                for (Message message : (ArrayList<Message>) result) {
+                    messagesList.add(message);
                     mArrayList.add(message.getMessage());
                 }
-            mAdapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
             }
         });
 
 
         mListOfTests.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick (AdapterView parent, View view, int position, long id) {
-                System.out.println("Long click");
-                view.startActionMode((android.view.ActionMode.Callback) modeCallBack);
+            public boolean onItemLongClick(AdapterView parent, View view, int position, long id) {
+                messg = mAdapter.getItem(position);
+                System.out.println("Long click" + messg.getIdMessage());
+                view.startActionMode(modeCallBack);
                 view.setSelected(true);
-                return true; } });
+                return true;
+            }
+        });
 
     }
 
@@ -159,11 +180,36 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            return false;
+            int id = item.getItemId();
+             String idMessageString = messg.getIdMessage();
+            switch (id) {
+                case R.id.delete: {
+                    new DaoMessageImpl().deleteMessage("https://api.mongolab.com/api/1/databases/test1/collections/users" +
+                            "/"+idMessageString+"?apiKey=U1icdnfIyGl0c7BeHPKAlPBvlX8cKvg_",new CallbackMongo(){
+                        @Override
+                        public void onTaskComplited(Object result) {
+                            if ((Boolean)result){
+                                Toast.makeText(getApplicationContext(),"Message "+messg.getIdMessage()+" was deleted successfuly",Toast.LENGTH_SHORT).show();
+                            }else{
+                                Toast.makeText(getApplicationContext(),"Message deleting Error",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    mAdapter.remove(messg);
+                    mAdapter.notifyDataSetChanged();
+                    mode.finish();
+                    break;
+                }
+                case R.id.comment: {
+                    System.out.println(" edit ");
+                    break;
+                }
+                default:
+                    return false;
+            }
+            return true;
         }
     };
-
-
 
 
     @Override
@@ -189,4 +235,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
